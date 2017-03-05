@@ -1,13 +1,16 @@
 
 
 import pandas
-def calculate_score(pre, real):
+def calculate_score(pre, real,save):
     if (len(pre.shape) == 1):
         pre = pandas.DataFrame(pre, columns=[0])
         real = pandas.DataFrame(real, columns=[0])
     else:
         pre = pandas.DataFrame(pre, columns=[i for i in range(pre.shape[1])])
         real = pandas.DataFrame(real, columns=[i for i in range(real.shape[1])])
+
+    pre.to_csv('result/'+save+'_pre.csv')
+    real.to_csv('result/' + save + '_real.csv')
 
     if (len(pre) != len(real)):
         print 'len(pre)!=len(real)', '\n'

@@ -60,11 +60,11 @@ list.append(IDcol)
 for i in range(0,44):
     list.append('cate3_'+str(i))
 print list
-for i in range(1,8):
-    list.append('1-'+str(i))
-for i in range(1,8):
-    list.append('2-'+str(i))
-print list
+# for i in range(1,8):
+#     list.append('1-'+str(i))
+# for i in range(1,8):
+#     list.append('2-'+str(i))
+# print list
 
 predictors = [x for x in train.columns if x not in list]
 print len(predictors)
@@ -72,52 +72,65 @@ print len(predictors)
 # wantdata = ['shopid','2016-09-20','2016-09-21','2016-09-22','2016-09-23','2016-09-24','2016-09-25','2016-09-26']
 # testvalues = ['2016-10-11']
 
-xgb1 = XGBClassifier(
+# xgb1 = XGBClassifier(
+#
+#     learning_rate=0.1,
+#     n_estimators=1000,
+#     max_depth=5,
+#     min_child_weight=3,
+#     gamma=0,
+#     subsample=0.8,
+#     colsample_bytree=0.8,
+#     objective='binary:logistic',
+#     scale_pos_weight=1,
+#     seed=27
+# )
+# alg = modelfit(xgb1,train,test,predictors)
 
-    learning_rate=0.1,
-    n_estimators=1000,
-    max_depth=5,
-    min_child_weight=3,
-    gamma=0,
-    subsample=0.8,
-    colsample_bytree=0.8,
-    objective='binary:logistic',
-    scale_pos_weight=1,
-    seed=27
-)
-alg = modelfit(xgb1,train,test,predictors)
+param_test = {
+    'max_depth':range(3,10,2),
+    'min_child_weight':range(1,6,2)
+}
+gsearch1 = GridSearchCV(estimator= XGBClassifier(learning_rate=0.1,n_estimators=184,max_depth=5,min_child_weight=1,gamma=0,
+                                                 subsample=0.8,colsample_bytree=0.8,objective='binary:logistic',scale_pos_weight=1,
+                                                 seed=27),param_grid = param_test,scoring='roc_auc',n_jobs=4,iid=False,cv = 5)
+alg = gsearch1.fit(train[predictors],train[target])
+print gsearch1.grid_scores_,gsearch1.best_params_,gsearch1.best_score_
 
-dtrain_predictions = alg.predict(train[predictors])
 
-dtrain_predictions = dtrain_predictions * 3000
-print dtrain_predictions
-train[target] = train[target] * 3000
-print train[target].values
 
-# dtrain_predprob = alg.predict_proba(train[predictors])[:, 1]
-# print the modelreport:
-
-print '\ntrain Model Report'
-
-# print "Accuracy: %.4g" %metrics.accuracy_score(dtrain[target].values, dtrain_predictions)
-# print 'AUC SCORE(Train):%f' %metrics.roc_auc_score(dtrain[target].values,dtrain_predprob)
-
-thescroe = socre.calculate_score(train[target].values, dtrain_predictions,'train')
-print thescroe
-
-feat_imp = pd.Series(alg.booster().get_fscore()).sort_values(ascending=False)
-feat_imp.plot(kind='bar', title='Feature Important')
-plt.ylabel('Feature Importance Score train')
-plt.show()
-
-dtest_predictions = alg.predict(test[predictors])
-print '\n test Model Report'
-dtest_predictions = dtest_predictions * 3000
-test[target] = test[target] * 3000
-print dtest_predictions
-print test[target].values
-thescroe = socre.calculate_score(test[target].values, dtest_predictions,'test')
-print thescroe
+#
+# dtrain_predictions = alg.predict(train[predictors])
+#
+# dtrain_predictions = dtrain_predictions * 3000
+# print dtrain_predictions
+# train[target] = train[target] * 3000
+# print train[target].values
+#
+# # dtrain_predprob = alg.predict_proba(train[predictors])[:, 1]
+# # print the modelreport:
+#
+# print '\ntrain Model Report'
+#
+# # print "Accuracy: %.4g" %metrics.accuracy_score(dtrain[target].values, dtrain_predictions)
+# # print 'AUC SCORE(Train):%f' %metrics.roc_auc_score(dtrain[target].values,dtrain_predprob)
+#
+# thescroe = socre.calculate_score(train[target].values, dtrain_predictions,'traing')
+# print thescroe
+#
+# feat_imp = pd.Series(alg.booster().get_fscore()).sort_values(ascending=False)
+# feat_imp.plot(kind='bar', title='Feature Important')
+# plt.ylabel('Feature Importance Score train')
+# plt.show()
+#
+# dtest_predictions = alg.predict(test[predictors])
+# print '\n test Model Report'
+# dtest__predictions = dtest_predictions * 3000
+# test[target] = test[target] * 3000
+# print dtest__predictions
+# print test[target].values
+# thescroe = socre.calculate_score(test[target].values, dtest_predictions,'testg')
+# print thescroe
 
 
 
